@@ -5,6 +5,7 @@ use vars qw(@EXPORT $USE_THREAD $USE_SFIO $PERL_DIR @EXPORT_OK);
 use Exporter ();
 use Config;
 use FileHandle ();
+use ExtUtils::MakeMaker;
 *import = \&Exporter::import;
 
 @EXPORT = qw(test fetch simple_fetch have_module skip_test
@@ -93,9 +94,9 @@ sub _ask {
     my $skip = defined $canskip ? " ('$canskip' to skip)" : '';
     my $response;
     do {
-	print "$prompt [$default]$skip: ";
-	chomp($response = <STDIN>);
-	$response ||= $default;
+	$response = prompt("$prompt $skip:", $default);
+	$response = $canskip
+	    if $mustfind && defined $canskip && $response eq $default && !-e $response;
     } until (!$mustfind || ($response eq $canskip) || (-e $response || !print("$response not found\n")));
 
     return $response;
